@@ -4,16 +4,18 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minlenth: 2,
+    minLenth: 2,
+    maxLength: 30,
   },
   avatar: {
     type: String,
-    minlenth: 2,
+    required: true,
   },
-  email: {
+  about: {
     type: String,
     required: true,
-    minlenth: 5,
+    minLenth: 2,
+    maxLength: 30,
   },
 });
 
