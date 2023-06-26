@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import userRouter from './routes/users.js';
+import cardRouter from './routes/cards.js';
 
 const { PORT = 3000 } = process.env;
 
@@ -17,5 +18,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/users', userRouter);
+app.use('/cards', cardRouter);
 
-app.listen(PORT, () => { console.log('Server'); });
+app.listen(PORT, () => { console.log(`server running on port:${PORT}`); });
