@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import Card from '../models/card.js';
 
 const getCards = (req, res) => {
@@ -11,7 +12,7 @@ const createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
-    .catch((error) => res.status(500).send(error));
+    .catch((error) => res.status(400).send(error));
 };
 
 const deleteCard = (req, res) => {
@@ -25,8 +26,14 @@ const handleCardLike = (req, res, isLike) => {
   const { cardId } = req.params;
   const action = isLike ? '$addToSet' : '$pull';
   Card.findByIdAndUpdate(cardId, { [action]: { likes: req.user._id } }, { new: true })
-    .then((card) => res.send(card))
-    .catch((error) => res.status(500).send(error));
+    .then((card) => {
+      card ? res.send(card) : res.status(404)
+        .send({
+          name: 'NotFound',
+          message: 'Card not found',
+        });
+    })
+    .catch((error) => res.status(400).send(error));
 };
 
 const likeCard = (req, res) => {
