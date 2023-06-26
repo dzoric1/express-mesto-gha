@@ -19,5 +19,11 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
+app.use('*', (req, res) => {
+  res.status(404).send({
+    name: 'NotFound',
+    message: 'User not found',
+  });
+});
 
 app.listen(PORT, () => { console.log(`server running on port:${PORT}`); });

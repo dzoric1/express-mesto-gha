@@ -18,8 +18,14 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
-    .then(() => res.send({ message: 'Карточка удалена' }))
-    .catch((error) => res.status(500).send(error));
+    .then((card) => {
+      card ? res.send({ message: 'Карточка удалена' }) : res.status(404)
+        .send({
+          name: 'NotFound',
+          message: 'Card not found',
+        });
+    })
+    .catch((error) => res.status(400).send(error));
 };
 
 const handleCardLike = (req, res, isLike) => {
