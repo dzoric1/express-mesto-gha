@@ -7,8 +7,8 @@ const createUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((error) => {
       console.log(error);
-      if (error.name === 'ValidationError') return res.status(400).send(error.message);
-      res.status(500).send(error.message);
+      if (error.name === 'ValidationError') return res.status(400).send(error);
+      res.status(500).send(error);
     });
 };
 
@@ -17,7 +17,7 @@ const getUsers = (req, res) => {
     .then((users) => res.send(users))
     .catch((error) => {
       console.log(error);
-      res.status(500).send(error.message);
+      res.status(500).send(error);
     });
 };
 
@@ -27,7 +27,7 @@ const getUser = (req, res) => {
     .then((user) => {
       user ? res.send(user) : res.status(404).send('User not found');
     })
-    .catch((error) => res.status(400).send(error.message));
+    .catch((error) => res.status(400).send(error));
 };
 
 const updateUser = (req, res) => {
@@ -39,7 +39,7 @@ const updateUser = (req, res) => {
     },
   )
     .then((updatedUser) => res.send(updatedUser))
-    .catch((error) => res.status(400).send(error.message));
+    .catch((error) => res.status(400).send(error));
 };
 
 export {
