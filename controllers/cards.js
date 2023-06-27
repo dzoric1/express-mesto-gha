@@ -12,7 +12,13 @@ const createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send(card))
-    .catch((error) => res.status(500).send(error));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        res.status(400).send(error);
+      } else {
+        res.status(500).send(error);
+      }
+    });
 };
 
 const deleteCard = (req, res) => {
@@ -45,7 +51,13 @@ const handleCardLike = (req, res, isLike) => {
           message: 'Карточка не найдена',
         });
     })
-    .catch((error) => res.status(500).send(error));
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        res.status(400).send(error);
+      } else {
+        res.status(500).send(error);
+      }
+    });
 };
 
 const likeCard = (req, res) => {
