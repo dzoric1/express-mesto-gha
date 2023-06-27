@@ -11,8 +11,8 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((card) => res.send(card))
-    .catch((error) => res.status(400).send(error));
+    .then((card) => res.status(201).send(card))
+    .catch((error) => res.status(500).send(error));
 };
 
 const deleteCard = (req, res) => {
@@ -22,10 +22,16 @@ const deleteCard = (req, res) => {
       card ? res.send({ message: 'Карточка удалена' }) : res.status(404)
         .send({
           name: 'NotFound',
-          message: 'Card not found',
+          message: 'Карточка не найдена',
         });
     })
-    .catch((error) => res.status(400).send(error));
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        res.status(400).send(error);
+      } else {
+        res.status(500).send(error);
+      }
+    });
 };
 
 const handleCardLike = (req, res, isLike) => {
@@ -36,10 +42,10 @@ const handleCardLike = (req, res, isLike) => {
       card ? res.send(card) : res.status(404)
         .send({
           name: 'NotFound',
-          message: 'Card not found',
+          message: 'Карточка не найдена',
         });
     })
-    .catch((error) => res.status(400).send(error));
+    .catch((error) => res.status(500).send(error));
 };
 
 const likeCard = (req, res) => {

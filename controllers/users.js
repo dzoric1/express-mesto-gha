@@ -4,7 +4,7 @@ import User from '../models/user.js';
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.send(user))
+    .then((user) => res.status(201).send(user))
     .catch((error) => {
       if (error.name === 'ValidationError') return res.status(400).send(error);
       res.status(500).send(error);
@@ -29,7 +29,13 @@ const getUser = (req, res) => {
           message: 'User not found',
         });
     })
-    .catch((error) => res.status(400).send(error));
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        res.status(400).send(error);
+      } else {
+        res.status(500).send(error);
+      }
+    });
 };
 
 const updateUser = (req, res) => {
@@ -42,7 +48,13 @@ const updateUser = (req, res) => {
     },
   )
     .then((updatedUser) => res.send(updatedUser))
-    .catch((error) => res.status(400).send(error));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        res.status(400).send(error);
+      } else {
+        res.status(500).send(error);
+      }
+    });
 };
 
 export {
