@@ -11,6 +11,9 @@
   },
   "rules": {
     "import/extensions": "off",
+    "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-shadow": "off",
     "no-unused-vars": "warn",
     "consistent-return": "off",
     "no-console": "off",

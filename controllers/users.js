@@ -1,10 +1,25 @@
 /* eslint-disable no-unused-expressions */
+import bcrypt from 'bcrypt';
 import User from '../models/user.js';
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then(({ name, about, avatar }) => res.status(201).send({ name, about, avatar }))
     .catch((error) => {
       if (error.name === 'ValidationError') return res.status(400).send(error);
       res.status(500).send(error);
@@ -57,9 +72,24 @@ const updateUser = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      return bcrypt.compare(password, user.password);
+    })
+    .catch((error) => {
+      res.status(401).send({ message: error.message });
+    });
+};
+
 export {
   createUser,
   getUsers,
   getUser,
   updateUser,
+  login,
 };
