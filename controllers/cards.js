@@ -1,61 +1,60 @@
 /* eslint-disable no-unused-expressions */
 import Card from '../models/card.js';
+import BadRequestError from '../utils/BadRequestError.js';
+import NotFoundError from '../utils/NotFoundError.js';
+import ForbiddenError from '../utils/ForbiddenError.js';
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((error) => res.status(500).send(error));
+    .catch((error) => next(error));
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send(card))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send(error);
+        next(new BadRequestError(error.message));
       } else {
-        res.status(500).send(error);
+        next(error);
       }
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
     .then((card) => {
-      card ? res.send({ message: 'Карточка удалена' }) : res.status(404)
-        .send({
-          name: 'NotFound',
-          message: 'Карточка не найдена',
-        });
+      card ? res.send({ message: 'Карточка удалена' }) : new NotFoundError('Карточка не найдена');
+
+      if (card.owner.toString() !== req.params.cardId) {
+        return new ForbiddenError('Удалять можно только свои карточки!');
+      }
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        res.status(400).send(error);
+        next(new BadRequestError('Переданные данные не валидны'));
       } else {
-        res.status(500).send(error);
+        next(error);
       }
     });
 };
 
-const handleCardLike = (req, res, isLike) => {
+const handleCardLike = (req, res, next, isLike) => {
   const { cardId } = req.params;
   const action = isLike ? '$addToSet' : '$pull';
   Card.findByIdAndUpdate(cardId, { [action]: { likes: req.user._id } }, { new: true })
     .then((card) => {
-      card ? res.send(card) : res.status(404)
-        .send({
-          name: 'NotFound',
-          message: 'Карточка не найдена',
-        });
+      card ? res.send(card) : new NotFoundError('Карточка не найдена');
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        res.status(400).send(error);
+        next(new BadRequestError('Переданные данные не валидны'));
       } else {
-        res.status(500).send(error);
+        next(error);
       }
     });
 };

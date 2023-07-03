@@ -3,8 +3,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET_KEY } from '../env.config.js';
 import User from '../models/user.js';
+import BadRequestError from '../utils/BadRequestError.js';
+import NotFoundError from '../utils/NotFoundError.js';
+import ForbiddenError from '../utils/ForbiddenError.js';
+import ConflictError from '../utils/ConflictError.js';
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -23,39 +27,34 @@ const createUser = (req, res) => {
     }))
     .then(({ name, about, avatar }) => res.status(201).send({ name, about, avatar }))
     .catch((error) => {
-      if (error.name === 'ValidationError') return res.status(400).send(error);
-      res.status(500).send(error);
+      if (error.code === 11000) return next(new ConflictError('Данный email занят'));
+      if (error.name === 'ValidationError') return next(new BadRequestError('Переданные данные не валидны'));
+      next(error);
     });
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((error) => {
-      res.status(500).send(error);
-    });
+    .catch((error) => next(error));
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { id } = req.params;
   User.findById(id)
     .then((user) => {
-      user ? res.send(user) : res.status(404)
-        .send({
-          name: 'NotFound',
-          message: 'User not found',
-        });
+      user ? res.send(user) : new NotFoundError('Пользователь не найден');
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        res.status(400).send(error);
+        next(new BadRequestError('Переданные данные не валидны'));
       } else {
-        res.status(500).send(error);
+        next();
       }
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     req.body,
@@ -67,14 +66,14 @@ const updateUser = (req, res) => {
     .then((updatedUser) => res.send(updatedUser))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send(error);
+        next(new BadRequestError('Переданные данные не валидны'));
       } else {
-        res.status(500).send(error);
+        next(error);
       }
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -82,14 +81,14 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((error) => {
-      res.status(401).send({ message: error.message });
+      next(error);
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findOne({ _id: req.user._id })
     .then((user) => res.send(user))
-    .catch((error) => res.status(401).send({ message: error.message }));
+    .catch((error) => next(error));
 };
 
 export {
