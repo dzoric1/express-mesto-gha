@@ -27,7 +27,7 @@ const createUser = (req, res, next) => {
     .then(({ name, about, avatar }) => res.status(201).send({ name, about, avatar }))
     .catch((error) => {
       if (error.code === 11000) return next(new ConflictError('Данный email занят'));
-      if (error.name === 'CastError') return next(new BadRequestError('Переданные данные не валидны'));
+      if (error.name === 'ValidationError') return next(new BadRequestError('Переданные данные не валидны'));
       next(error);
     });
 };
@@ -86,8 +86,14 @@ const login = (req, res, next) => {
 
 const getCurrentUser = (req, res, next) => {
   User.findOne({ _id: req.user._id })
-    .then((user) => res.status(200).send(user))
-    .catch((error) => next(error));
+    .then((user) => {
+      user ? res.send(user) : new NotFoundError('Пользователь не найден');
+      res.status(200).send(user);
+    })
+    .catch((error) => {
+      if (error.name === 'CastError') return next(new BadRequestError('Переданные данные не валидны'));
+      next(error);
+    });
 };
 
 export {
