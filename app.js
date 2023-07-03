@@ -4,12 +4,11 @@ import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import userRouter from './routes/users.js';
 import cardRouter from './routes/cards.js';
+import { PORT } from './env.config.js';
 import {
   login,
   createUser,
 } from './controllers/users.js';
-
-const { PORT = 3000 } = process.env;
 
 const app = express();
 app.use(helmet());

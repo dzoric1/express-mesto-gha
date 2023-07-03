@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-expressions */
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { JWT_SECRET_KEY } from '../env.config.js';
 import User from '../models/user.js';
 
 const createUser = (req, res) => {
@@ -77,7 +78,7 @@ const login = (req, res) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'd25b2064fd8bc5f48643994194af6c764029047ce8311c596f4520f8bcebdae5', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET_KEY, { expiresIn: '7d' });
       res.send({ token });
     })
     .catch((error) => {
