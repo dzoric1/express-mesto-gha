@@ -86,10 +86,17 @@ const login = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  User.findOne({ _id: req.user._id })
+    .then((user) => res.send(user))
+    .catch((error) => res.status(401).send({ message: error.message }));
+};
+
 export {
   createUser,
   getUsers,
   getUser,
   updateUser,
   login,
+  getCurrentUser,
 };

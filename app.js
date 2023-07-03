@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
+import auth from './middlewares/auth.js';
 import userRouter from './routes/users.js';
 import cardRouter from './routes/cards.js';
 import { PORT } from './env.config.js';
@@ -15,17 +16,10 @@ app.use(helmet());
 app.use(bodyParser.json());
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64982ca762c09c7a3b42fbd4',
-  };
-  next();
-});
-
 app.post('/signin', login);
 app.post('/signup', createUser);
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use('/users', auth, userRouter);
+app.use('/cards', auth, cardRouter);
 app.use('*', (req, res) => {
   res.status(404).send({
     name: 'NotFound',
