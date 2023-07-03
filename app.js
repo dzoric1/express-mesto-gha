@@ -23,11 +23,10 @@ app.use(helmet());
 app.use(bodyParser.json());
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-app.use(auth);
-app.post('/signup', validateRegister, createUser);
 app.post('/signin', validateLogin, login);
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.post('/signup', validateRegister, createUser);
+app.use('/users', auth, userRouter);
+app.use('/cards', auth, cardRouter);
 app.use('*', () => {
   throw new NotFoundError('Запрашиваемый URL не найден');
 });
