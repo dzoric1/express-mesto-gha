@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-expressions */
 import Card from '../models/card.js';
-import BadRequestError from '../utils/BadRequestError.js';
-import NotFoundError from '../utils/NotFoundError.js';
-import ForbiddenError from '../utils/ForbiddenError.js';
+import BadRequestError from '../utils/errors/BadRequestError.js';
+import NotFoundError from '../utils/errors/NotFoundError.js';
+import ForbiddenError from '../utils/errors/ForbiddenError.js';
 
 const getCards = (req, res, next) => {
   Card.find({})

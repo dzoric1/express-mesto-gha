@@ -3,10 +3,9 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET_KEY } from '../env.config.js';
 import User from '../models/user.js';
-import BadRequestError from '../utils/BadRequestError.js';
-import NotFoundError from '../utils/NotFoundError.js';
-import ForbiddenError from '../utils/ForbiddenError.js';
-import ConflictError from '../utils/ConflictError.js';
+import BadRequestError from '../utils/errors/BadRequestError.js';
+import NotFoundError from '../utils/errors/NotFoundError.js';
+import ConflictError from '../utils/errors/ConflictError.js';
 
 const createUser = (req, res, next) => {
   const {
@@ -87,7 +86,7 @@ const login = (req, res, next) => {
 
 const getCurrentUser = (req, res, next) => {
   User.findOne({ _id: req.user._id })
-    .then((user) => res.send(user))
+    .then((user) => res.status(201).send(user))
     .catch((error) => next(error));
 };
 
