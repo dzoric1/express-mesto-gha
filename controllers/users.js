@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 
 const createUser = (req, res) => {
@@ -74,12 +75,10 @@ const updateUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  User.findOne({ email })
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      return bcrypt.compare(password, user.password);
+      const token = jwt.sign({ _id: user._id }, 'd25b2064fd8bc5f48643994194af6c764029047ce8311c596f4520f8bcebdae5', { expiresIn: '7d' });
+      res.send({ token });
     })
     .catch((error) => {
       res.status(401).send({ message: error.message });
