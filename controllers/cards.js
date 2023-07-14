@@ -36,11 +36,11 @@ const deleteCard = (req, res, next) => {
         throw new NotFoundError('Карточка не найдена');
       }
 
-      if (card.owner.toString() !== req.params.cardId) {
+      if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Удалять можно только свои карточки!');
       }
 
-      Card.deleteOne(card)
+      Card.findByIdAndRemove(cardId)
         .then(() => {
           res.send({ message: 'Карточка удалена' });
         })
