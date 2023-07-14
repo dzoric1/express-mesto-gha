@@ -42,13 +42,16 @@ const getUser = (req, res, next) => {
   const { id } = req.params;
   User.findById(id)
     .then((user) => {
-      user ? res.send(user) : new NotFoundError('Пользователь не найден');
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      }
+      res.send(user);
     })
     .catch((error) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Переданные данные не валидны'));
       } else {
-        next();
+        next(error);
       }
     });
 };
