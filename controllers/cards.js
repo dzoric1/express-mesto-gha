@@ -58,12 +58,10 @@ const handleCardLike = (req, res, next, isLike) => {
   const { cardId } = req.params;
   const action = isLike ? '$addToSet' : '$pull';
   Card.findByIdAndUpdate(cardId, { [action]: { likes: req.user._id } }, { new: true })
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка не найдена');
-      }
-      res.send(card);
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
     })
+    .then((card) => res.send(card))
     .catch((error) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Переданные данные не валидны'));
