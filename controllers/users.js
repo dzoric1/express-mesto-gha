@@ -87,8 +87,7 @@ const login = (req, res, next) => {
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
-      user ? res.send(user) : new NotFoundError('Пользователь не найден');
-      res.status(200).send(user);
+      user ? res.status(200).send(user) : new NotFoundError('Пользователь не найден');
     })
     .catch((error) => {
       if (error.name === 'CastError') return next(new BadRequestError('Переданные данные не валидны'));

@@ -40,7 +40,7 @@ const deleteCard = (req, res, next) => {
         return new ForbiddenError('Удалять можно только свои карточки!');
       }
 
-      Card.findByIdAndRemove(cardId)
+      Card.deleteOne(card)
         .then(() => {
           res.send({ message: 'Карточка удалена' });
         })

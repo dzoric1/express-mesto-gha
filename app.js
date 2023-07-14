@@ -2,12 +2,14 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { errors } from 'celebrate';
 import auth from './middlewares/auth.js';
 import errorMiddleware from './middlewares/error.js';
 import userRouter from './routes/users.js';
 import cardRouter from './routes/cards.js';
 import NotFoundError from './utils/errors/NotFoundError.js';
+import { limiterSettings } from './utils/variables.js';
 import { PORT } from './env.config.js';
 import {
   login,
@@ -21,6 +23,11 @@ import {
 const app = express();
 app.use(helmet());
 app.use(bodyParser.json());
+
+const limiter = rateLimit(limiterSettings);
+
+app.use(limiter);
+
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.post('/signin', validateLogin, login);
