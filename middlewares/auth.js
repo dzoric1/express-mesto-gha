@@ -5,14 +5,15 @@ import { JWT_SECRET_KEY } from '../env.config.js';
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
-  if (!authorization) {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new UnauthorizedError('Необходима авторизация');
   }
 
+  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
-    payload = jwt.verify(authorization, JWT_SECRET_KEY);
+    payload = jwt.verify(token, JWT_SECRET_KEY);
   } catch (err) {
     throw new UnauthorizedError('Необходима авторизация');
   }
