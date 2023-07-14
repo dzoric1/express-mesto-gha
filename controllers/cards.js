@@ -26,20 +26,31 @@ const createCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+
+  Card.findById(cardId)
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
+    })
     .then((card) => {
-      card ? res.send({ message: 'Карточка удалена' }) : new NotFoundError('Карточка не найдена');
+      if (!card) {
+        return new NotFoundError('Карточка не найдена');
+      }
 
       if (card.owner.toString() !== req.params.cardId) {
         return new ForbiddenError('Удалять можно только свои карточки!');
       }
-    })
-    .catch((error) => {
-      if (error.name === 'CastError') {
-        next(new BadRequestError('Переданные данные не валидны'));
-      } else {
-        next(error);
-      }
+
+      Card.findByIdAndRemove(cardId)
+        .then(() => {
+          res.send({ message: 'Карточка удалена' });
+        })
+        .catch((error) => {
+          if (error.name === 'CastError') {
+            next(new BadRequestError('Переданные данные не валидны'));
+          } else {
+            next(error);
+          }
+        });
     });
 };
 
