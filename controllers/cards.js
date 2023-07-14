@@ -33,11 +33,11 @@ const deleteCard = (req, res, next) => {
     })
     .then((card) => {
       if (!card) {
-        return new NotFoundError('Карточка не найдена');
+        throw new NotFoundError('Карточка не найдена');
       }
 
       if (card.owner.toString() !== req.params.cardId) {
-        return new ForbiddenError('Удалять можно только свои карточки!');
+        throw new ForbiddenError('Удалять можно только свои карточки!');
       }
 
       Card.deleteOne(card)
@@ -51,7 +51,8 @@ const deleteCard = (req, res, next) => {
             next(error);
           }
         });
-    });
+    })
+    .catch((error) => next(error));
 };
 
 const handleCardLike = (req, res, next, options) => {
