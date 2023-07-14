@@ -85,7 +85,7 @@ const login = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  User.findOne({ _id: req.user._id })
+  User.findById(req.user._id)
     .then((user) => {
       user ? res.send(user) : new NotFoundError('Пользователь не найден');
       res.status(200).send(user);

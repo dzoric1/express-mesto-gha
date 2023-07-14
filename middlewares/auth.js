@@ -5,7 +5,7 @@ import { JWT_SECRET_KEY } from '../env.config.js';
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!authorization) {
     throw new UnauthorizedError('Необходима авторизация');
   }
 
