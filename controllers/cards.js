@@ -54,14 +54,16 @@ const deleteCard = (req, res, next) => {
     });
 };
 
-const handleCardLike = (req, res, next, isLike) => {
+const handleCardLike = (req, res, next, options) => {
   const { cardId } = req.params;
-  const action = isLike ? '$addToSet' : '$pull';
+  const action = options.isLike ? '$addToSet' : '$pull';
   Card.findByIdAndUpdate(cardId, { [action]: { likes: req.user._id } }, { new: true })
     .orFail(() => {
       throw new NotFoundError('Карточка не найдена');
     })
-    .then((card) => res.send(card))
+    .then((card) => {
+      res.send(card);
+    })
     .catch((error) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Переданные данные не валидны'));
@@ -71,12 +73,12 @@ const handleCardLike = (req, res, next, isLike) => {
     });
 };
 
-const likeCard = (req, res) => {
-  handleCardLike(req, res, { isLike: true });
+const likeCard = (req, res, next) => {
+  handleCardLike(req, res, next, { isLike: true });
 };
 
-const dislikeCard = (req, res) => {
-  handleCardLike(req, res, { isLike: false });
+const dislikeCard = (req, res, next) => {
+  handleCardLike(req, res, next, { isLike: false });
 };
 
 export {
